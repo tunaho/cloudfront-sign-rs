@@ -1,10 +1,5 @@
 use pkcs1::DecodeRsaPrivateKey;
-use rsa::pss::BlindedSigningKey;
 use sha1::{Digest, Sha1};
-use std::fmt::Error;
-use std::fs::File;
-use std::io::BufRead;
-use std::io::BufReader;
 use std::{
     collections::HashMap,
     time::{SystemTime, UNIX_EPOCH},
@@ -19,8 +14,6 @@ pub enum EncodingError {
     InvalidKeyError(#[from] pkcs1::Error),
     #[error("invalid rsa key provided")]
     InvalidRSAKeyError(#[from] rsa::errors::Error),
-    #[error("invalid file")]
-    InvalidFileError(#[from] std::io::Error),
     #[error("unknown error")]
     Unknown,
 }

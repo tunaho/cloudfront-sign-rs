@@ -18,5 +18,3 @@ base64 = "0.13.1"
 rsa = "0.7.2"
 pkcs1 = { version = "0.4.1", features = ["pem"] }
 sha1 = { version = "0.10.5", features = ["oid"] }
-rustls = "0.20.7"
-rustls-pemfile = "1.0.1"
