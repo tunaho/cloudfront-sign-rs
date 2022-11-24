@@ -1,6 +1,6 @@
 [package]
 name = "cloudfront_sign"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Peter Evers <peter@promaton.com>"]
 edition = "2018"
 description = "Utility module for AWS CloudFront to generate signed URLs and cookies"
@@ -16,3 +16,7 @@ readme = "README.md"
 thiserror = "1.0.24"
 base64 = "0.13.1"
 rsa = "0.7.2"
+pkcs1 = { version = "0.4.1", features = ["pem"] }
+sha1 = { version = "0.10.5", features = ["oid"] }
+rustls = "0.20.7"
+rustls-pemfile = "1.0.1"

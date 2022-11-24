@@ -1,3 +1,10 @@
+use pkcs1::DecodeRsaPrivateKey;
+use rsa::pss::BlindedSigningKey;
+use sha1::{Digest, Sha1};
+use std::fmt::Error;
+use std::fs::File;
+use std::io::BufRead;
+use std::io::BufReader;
 use std::{
     collections::HashMap,
     time::{SystemTime, UNIX_EPOCH},
@@ -9,7 +16,11 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum EncodingError {
     #[error("invalid key provided")]
-    InvalidKeyError(#[from] ErrorStack),
+    InvalidKeyError(#[from] pkcs1::Error),
+    #[error("invalid rsa key provided")]
+    InvalidRSAKeyError(#[from] rsa::errors::Error),
+    #[error("invalid file")]
+    InvalidFileError(#[from] std::io::Error),
     #[error("unknown error")]
     Unknown,
 }
@@ -101,11 +112,12 @@ pub fn get_signed_cookie(
 
 /// Create signature for a given policy and private key PEM-encoded PKCS#1
 fn create_policy_signature(policy: &str, private_key: &str) -> Result<String, EncodingError> {
-    let rsa = pkcs1::DecodeRsaPrivateKey::from_pkcs1_pem(private_key.as_bytes())?;
-    let keypair = PKey::from_rsa(rsa)?;
-    let mut signer = Signer::new(MessageDigest::sha1(), &keypair)?;
-    signer.update(policy.as_bytes())?;
-    Ok(base64::encode(&signer.sign_to_vec()?))
+    let rsa = rsa::RsaPrivateKey::from_pkcs1_pem(&private_key)?;
+    let signature = rsa.sign(
+        rsa::padding::PaddingScheme::new_pkcs1v15_sign::<sha1::Sha1>(),
+        &Sha1::digest(policy.as_bytes().to_vec()),
+    )?;
+    Ok(base64::encode(&signature))
 }
 
 /// Create a URL safe Base64 encoded string.
