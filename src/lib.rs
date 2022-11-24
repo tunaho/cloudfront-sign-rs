@@ -1,4 +1,3 @@
-use openssl::{error::ErrorStack, hash::MessageDigest, pkey::PKey, rsa::Rsa, sign::Signer};
 use std::{
     collections::HashMap,
     time::{SystemTime, UNIX_EPOCH},
@@ -102,7 +101,7 @@ pub fn get_signed_cookie(
 
 /// Create signature for a given policy and private key PEM-encoded PKCS#1
 fn create_policy_signature(policy: &str, private_key: &str) -> Result<String, EncodingError> {
-    let rsa = Rsa::private_key_from_pem(private_key.as_bytes())?;
+    let rsa = pkcs1::DecodeRsaPrivateKey::from_pkcs1_pem(private_key.as_bytes())?;
     let keypair = PKey::from_rsa(rsa)?;
     let mut signer = Signer::new(MessageDigest::sha1(), &keypair)?;
     signer.update(policy.as_bytes())?;
