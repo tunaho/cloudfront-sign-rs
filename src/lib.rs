@@ -82,7 +82,7 @@ pub fn get_signed_cookie(
     let mut headers: HashMap<String, String> = HashMap::new();
     let policy = get_custom_policy(url, options);
     let signature = create_policy_signature(&policy, &options.private_key)?;
-    let policy_string = openssl::base64::encode_block(policy.as_bytes());
+    let policy_string = base64::encode(policy.as_bytes());
 
     headers.insert(
         String::from("CloudFront-Policy"),
@@ -106,7 +106,7 @@ fn create_policy_signature(policy: &str, private_key: &str) -> Result<String, En
     let keypair = PKey::from_rsa(rsa)?;
     let mut signer = Signer::new(MessageDigest::sha1(), &keypair)?;
     signer.update(policy.as_bytes())?;
-    Ok(openssl::base64::encode_block(&signer.sign_to_vec()?))
+    Ok(base64::encode(&signer.sign_to_vec()?))
 }
 
 /// Create a URL safe Base64 encoded string.
@@ -140,7 +140,7 @@ pub fn get_signed_url(url: &str, options: &SignedOptions) -> Result<String, Enco
     let signature = create_policy_signature(&policy, &options.private_key)?;
 
     if options.date_greater_than.is_some() || options.ip_address.is_some() {
-        let policy_string = openssl::base64::encode_block(policy.as_bytes());
+        let policy_string = base64::encode(policy.as_bytes());
 
         Ok(format!(
             "{}{}Expires={}&Policy={}&Signature={}&Key-Pair-Id={}",
